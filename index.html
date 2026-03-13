@@ -248,7 +248,7 @@
             <button class="btn btn-danger" id="clearBtn" type="button">クリア</button>
           </div>
         </div>
-        <textarea id="inputText" placeholder="例：ヤマダショウタ" maxlength="10000" aria-label="入力欄"></textarea>
+        <textarea id="inputText" placeholder="例：アイウエオ、キャッシュ、バイチケ" maxlength="10000" aria-label="入力欄"></textarea>
         <div class="meta">
           <span id="inputCount">0 / 10000文字</span>
           <span>全角カタカナ・ひらがな・記号を変換</span>
@@ -259,7 +259,7 @@
         <div class="card-header">
           <h2>変換結果</h2>
           <div class="toolbar">
-            <button class="btn" id="downloadBtn" type="button">TXT保存</button>
+            
             <button class="btn btn-primary" id="copyBtn" type="button">コピー</button>
           </div>
         </div>
@@ -369,7 +369,7 @@
     });
 
     sampleBtn.addEventListener('click', () => {
-      inputText.value = 'ヤマダショウタ';
+      inputText.value = 'キャッシュ、バイチケ、ガッツポーズ、ぁぃぅゃゅょ';
       updateOutput();
       showMessage('サンプルを入力しました。');
     });
@@ -383,9 +383,7 @@
       }
     });
 
-    downloadBtn.addEventListener('click', () => {
-      try {
-        const blob = new Blob([outputText.value], { type: 'text/plain;charset=utf-8' });
+    
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
