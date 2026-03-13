@@ -6,7 +6,7 @@
   <meta name="description" content="全角カタカナを半角カタカナへ変換し、小文字を大文字にそろえる無料ツールです。ブラウザ内で安全に変換できます。" />
   <meta name="robots" content="index, follow" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'" />
-  <title>カタカナ変換ツール</title>
+  <title>カタカナ変換ツール | 全角→半角・小文字→大文字</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -186,47 +186,8 @@
       color: var(--danger);
     }
 
-    .options {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .option-item {
-      padding: 16px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.82);
-      box-shadow: var(--shadow);
-    }
-
-    .option-item h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-    }
-
-    .option-item p, .option-item li {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 14px;
-    }
-
-    .option-item ul {
-      padding-left: 18px;
-      margin: 0;
-    }
-
-    .footer-note {
-      margin-top: 20px;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
     @media (max-width: 920px) {
-      .grid, .options { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
       textarea { min-height: 220px; font-size: 18px; }
     }
   </style>
@@ -259,7 +220,6 @@
         <div class="card-header">
           <h2>変換結果</h2>
           <div class="toolbar">
-            
             <button class="btn btn-primary" id="copyBtn" type="button">コピー</button>
           </div>
         </div>
@@ -271,8 +231,6 @@
         <div class="message" id="message" role="status" aria-live="polite"></div>
       </section>
     </section>
-
-    
   </main>
 
   <script>
@@ -281,7 +239,6 @@
     const copyBtn = document.getElementById('copyBtn');
     const clearBtn = document.getElementById('clearBtn');
     const sampleBtn = document.getElementById('sampleBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
     const message = document.getElementById('message');
     const inputCount = document.getElementById('inputCount');
     const outputCount = document.getElementById('outputCount');
@@ -323,78 +280,74 @@
     }
 
     function hiraganaToKatakana(text) {
-      return text.replace(/[ぁ-ゖ]/g, char => String.fromCharCode(char.charCodeAt(0) + 0x60));
+      return text.replace(/[ぁ-ゖ]/g, function(char) {
+        return String.fromCharCode(char.charCodeAt(0) + 0x60);
+      });
     }
 
     function normalizeSmallKana(text) {
-      return text.replace(/[ァィゥェォッャュョヮヵヶ]/g, char => smallToLargeMap[char] || char);
+      return text.replace(/[ァィゥェォッャュョヮヵヶ]/g, function(char) {
+        return smallToLargeMap[char] || char;
+      });
     }
 
     function toHalfWidthKatakana(input) {
       let text = sanitizeLength(input).normalize('NFKC');
       text = hiraganaToKatakana(text);
       text = normalizeSmallKana(text);
-      return text.replace(/[ァ-ヶー。、・「」゛゜ヴガ-ポ]/g, char => kanaMap[char] || char);
+      return text.replace(/[ァ-ヶー。、・「」゛゜]/g, function(char) {
+        return kanaMap[char] || char;
+      });
     }
 
     function updateCounters() {
-      inputCount.textContent = `${inputText.value.length} / ${MAX_LENGTH}文字`;
-      outputCount.textContent = `${outputText.value.length}文字`;
+      inputCount.textContent = inputText.value.length + ' / ' + MAX_LENGTH + '文字';
+      outputCount.textContent = outputText.value.length + '文字';
     }
 
-    function showMessage(text = '', isWarning = false) {
-      message.textContent = text;
-      message.classList.toggle('warning', isWarning);
+    function showMessage(text, isWarning) {
+      message.textContent = text || '';
+      if (isWarning) {
+        message.classList.add('warning');
+      } else {
+        message.classList.remove('warning');
+      }
     }
 
     function updateOutput() {
       const sanitized = sanitizeLength(inputText.value);
-      if (sanitized !== inputText.value) inputText.value = sanitized;
+      if (sanitized !== inputText.value) {
+        inputText.value = sanitized;
+      }
       outputText.value = toHalfWidthKatakana(inputText.value);
       updateCounters();
-      if (!message.classList.contains('warning')) showMessage('');
     }
 
-    inputText.addEventListener('input', () => {
-      showMessage('');
+    inputText.addEventListener('input', function() {
+      showMessage('', false);
       updateOutput();
     });
 
-    clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener('click', function() {
       inputText.value = '';
       outputText.value = '';
       updateCounters();
-      showMessage('入力内容をクリアしました。');
+      showMessage('入力内容をクリアしました。', false);
       inputText.focus();
     });
 
-    sampleBtn.addEventListener('click', () => {
+    sampleBtn.addEventListener('click', function() {
       inputText.value = 'ヤマダショウタ';
       updateOutput();
-      showMessage('サンプルを入力しました。');
+      showMessage('サンプルを入力しました。', false);
     });
 
-    copyBtn.addEventListener('click', async () => {
+    copyBtn.addEventListener('click', async function() {
       try {
         await navigator.clipboard.writeText(outputText.value);
-        showMessage('変換結果をコピーしました。');
-      } catch {
+        showMessage('変換結果をコピーしました。', false);
+      } catch (e) {
         showMessage('コピーに失敗しました。', true);
-      }
-    });
-
-    
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'katakana-converted.txt';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        showMessage('TXTファイルとして保存しました。');
-      } catch {
-        showMessage('保存に失敗しました。', true);
       }
     });
 
